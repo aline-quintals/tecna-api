@@ -23,7 +23,7 @@ def verify_token(x_isy_token: str = Header(...)):
             detail="Token inválido ou ausente"
         )
 
-    # retorna usuário (MELHOR PRÁTICA)
+    # retorna usuário 
     return {
         "id": result[0],
         "nome": result[1],

@@ -1,12 +1,15 @@
 from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import text
+import os
 import subprocess
+
 from app.database import engine
 from app.auth import verify_token
 from app.services import save_log
 from app.scripts_api import router as scripts_router
 from app.logs_api import router as logs_router
+
 
 # =========================
 # APP
@@ -16,10 +19,6 @@ app = FastAPI(
     version="1.0",
     docs_url="/docs",
     openapi_url="/openapi.json"
-)
-app = FastAPI(
-    title="TECNA API",
-    version="1.0"
 )
 
 app.include_router(scripts_router)
@@ -62,7 +61,7 @@ def home():
 @app.post("/execute")
 def execute_script(
     payload: ExecuteRequest,
-    user=Depends(verify_token)   # <-- AGORA ISSO É O USUÁRIO
+    user=Depends(verify_token)
 ):
 
     script_id = payload.script_id
@@ -73,9 +72,10 @@ def execute_script(
     with engine.connect() as conn:
         result = conn.execute(
             text("""
-                SELECT caminho 
-                FROM scripts 
-                WHERE id = :id AND ativo = 1
+                SELECT caminho
+                FROM scripts
+                WHERE id = :id
+                AND ativo = 1
             """),
             {"id": script_id}
         ).fetchone()
@@ -88,36 +88,68 @@ def execute_script(
 
     script_path = result[0]
 
+    # =========================
+    # VALIDAÇÕES DE SEGURANÇA
+    # =========================
+    if ".." in script_path:
+        raise HTTPException(
+            status_code=400,
+            detail="Caminho inválido"
+        )
+
+    if not script_path.startswith("scripts/"):
+        raise HTTPException(
+            status_code=400,
+            detail="Script fora do diretório permitido"
+        )
+
+    if not os.path.exists(script_path):
+        raise HTTPException(
+            status_code=404,
+            detail="Arquivo do script não encontrado"
+        )
 
     # =========================
     # 2. EXECUTAR SCRIPT
     # =========================
     try:
+
         exec_result = subprocess.run(
             ["bash", script_path],
             capture_output=True,
-            text=True
+            text=True,
+            timeout=60,
+            check=False
         )
 
-        status = "success"
+        if exec_result.returncode == 0:
+            status = "success"
+        else:
+            status = "error"
+
         stdout = exec_result.stdout
         stderr = exec_result.stderr
 
+    except subprocess.TimeoutExpired:
+
+        status = "timeout"
+        stdout = ""
+        stderr = "Tempo máximo de execução excedido"
+
     except Exception as e:
+
         status = "error"
         stdout = ""
         stderr = str(e)
 
-
     # =========================
-    # 3. PEGAR USUÁRIO (CORRETO AGORA)
+    # 3. DADOS DO USUÁRIO
     # =========================
     usuario_id = user["id"]
     usuario_nome = user["nome"]
 
-
     # =========================
-    # 4. SALVAR LOG
+    # 4. LOG
     # =========================
     print("========== DEBUG ==========")
     print("USUARIO:", usuario_id)
