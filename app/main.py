@@ -1,127 +1,144 @@
-from fastapi import Depends, Header, HTTPException, FastAPI
+from fastapi import Depends, FastAPI, HTTPException
+from pydantic import BaseModel
 from sqlalchemy import text
-from app.database import engine
 import subprocess
+from app.database import engine
+from app.auth import verify_token
+from app.services import save_log
+from app.scripts_api import router as scripts_router
 
 # =========================
-# CRIA A API PRINCIPAL
+# APP
 # =========================
+app = FastAPI(
+    title="TECNA API",
+    version="1.0",
+    docs_url="/docs",
+    openapi_url="/openapi.json"
+)
 app = FastAPI(
     title="TECNA API",
     version="1.0"
 )
 
-# Caminho do script que será executado
-SCRIPT_PATH = "scripts/teste.sh"
+app.include_router(scripts_router)
 
 
 # =========================
-# ROTA DE TESTE / SAÚDE DA API
+# MODELO
+# =========================
+class ExecuteRequest(BaseModel):
+    script_id: int
+
+
+# =========================
+# HEALTH CHECK
 # =========================
 @app.get("/")
 def home():
     try:
-        # Testa conexão com o banco (SELECT 1)
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
 
         return {
             "project": "TECNA",
-            "database": "conectado",
-            "status": "online"
+            "status": "online",
+            "database": "conectado"
         }
 
     except Exception as e:
         return {
             "project": "TECNA",
-            "database": "erro",
+            "status": "erro",
             "message": str(e)
         }
 
 
 # =========================
-# VERIFICAÇÃO DO TOKEN (X-Isy-Token)
-# =========================
-def verify_token(x_isy_token: str = Header(...)):
-    """
-    Valida o token enviado no HEADER contra o banco de dados
-    """
-
-    with engine.connect() as conn:
-        result = conn.execute(
-            text("SELECT token FROM usuarios WHERE id = 1")
-        ).fetchone()
-
-    if not result or result[0] != x_isy_token:
-        raise HTTPException(status_code=401, detail="Token inválido ou ausente")
-
-    return True
-
-
-# =========================
-# ROTA PRINCIPAL
-# EXECUTA SCRIPT SHELL
+# EXECUÇÃO DE SCRIPT
 # =========================
 @app.post("/execute")
-def execute_script(auth: bool = Depends(verify_token)):
+def execute_script(
+    payload: ExecuteRequest,
+    user=Depends(verify_token)   # <-- AGORA ISSO É O USUÁRIO
+):
 
-    # -------------------------
-    # 1. EXECUÇÃO DO SCRIPT
-    # -------------------------
+    script_id = payload.script_id
+
+    # =========================
+    # 1. BUSCAR SCRIPT ATIVO
+    # =========================
+    with engine.connect() as conn:
+        result = conn.execute(
+            text("""
+                SELECT caminho 
+                FROM scripts 
+                WHERE id = :id AND ativo = 1
+            """),
+            {"id": script_id}
+        ).fetchone()
+
+    if not result:
+        raise HTTPException(
+            status_code=404,
+            detail="Script não encontrado ou inativo"
+        )
+
+    script_path = result[0]
+
+
+    # =========================
+    # 2. EXECUTAR SCRIPT
+    # =========================
     try:
-        result = subprocess.run(
-            ["bash", SCRIPT_PATH],
+        exec_result = subprocess.run(
+            ["bash", script_path],
             capture_output=True,
             text=True
         )
 
         status = "success"
-        stdout = result.stdout
-        stderr = result.stderr
+        stdout = exec_result.stdout
+        stderr = exec_result.stderr
 
     except Exception as e:
         status = "error"
         stdout = ""
         stderr = str(e)
 
-    # -------------------------
-    # 2. DEBUG (terminal)
-    # -------------------------
-    print("DEBUG STATUS:", status)
-    print("DEBUG STDOUT:", stdout)
-    print("DEBUG STDERR:", stderr)
 
-    # -------------------------
-    # 3. SALVAR LOG NO BANCO
-    # -------------------------
-    try:
-        with engine.begin() as conn:
-            conn.execute(
-                text("""
-                    INSERT INTO logs_execucao 
-                    (usuario_id, script_id, status, stdout, stderr)
-                    VALUES (:usuario_id, :script_id, :status, :stdout, :stderr)
-                """),
-                {
-                    "usuario_id": 1,
-                    "script_id": 1,
-                    "status": status,
-                    "stdout": stdout,
-                    "stderr": stderr
-                }
-            )
+    # =========================
+    # 3. PEGAR USUÁRIO (CORRETO AGORA)
+    # =========================
+    usuario_id = user["id"]
+    usuario_nome = user["nome"]
 
-        print("DEBUG: INSERT OK")
 
-    except Exception as db_error:
-        print("DEBUG DB ERROR:", db_error)
+    # =========================
+    # 4. SALVAR LOG
+    # =========================
+    print("========== DEBUG ==========")
+    print("USUARIO:", usuario_id)
+    print("SCRIPT:", script_id)
+    print("STATUS:", status)
+    print("===========================")
 
-    # -------------------------
-    # 4. RESPOSTA DA API
-    # -------------------------
+    save_log(
+        usuario_id=usuario_id,
+        script_id=script_id,
+        status=status,
+        stdout=stdout,
+        stderr=stderr
+    )
+
+    # =========================
+    # 5. RESPONSE
+    # =========================
     return {
         "status": status,
+        "script_id": script_id,
+        "usuario_id": usuario_id,
+        "usuario_nome": usuario_nome,
         "stdout": stdout,
         "stderr": stderr
     }
-
