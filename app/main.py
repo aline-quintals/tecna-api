@@ -9,6 +9,7 @@ from app.auth import verify_token
 from app.services import save_log
 from app.scripts_api import router as scripts_router
 from app.logs_api import router as logs_router
+from app.usuarios_api import router as usuarios_router
 
 
 # =========================
@@ -23,6 +24,7 @@ app = FastAPI(
 
 app.include_router(scripts_router)
 app.include_router(logs_router)
+app.include_router(usuarios_router)
 
 
 # =========================
