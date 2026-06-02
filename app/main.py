@@ -10,7 +10,8 @@ from app.services import save_log
 from app.scripts_api import router as scripts_router
 from app.logs_api import router as logs_router
 from app.usuarios_api import router as usuarios_router
-
+from app.dashboard import router as dashboard_router
+from fastapi.staticfiles import StaticFiles
 
 # =========================
 # APP
@@ -22,9 +23,15 @@ app = FastAPI(
     openapi_url="/openapi.json"
 )
 
+app.mount("/static", 
+          StaticFiles(directory="static"), 
+          name="static"
+)
+
 app.include_router(scripts_router)
 app.include_router(logs_router)
 app.include_router(usuarios_router)
+app.include_router(dashboard_router)
 
 
 # =========================

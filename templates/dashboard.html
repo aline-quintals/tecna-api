@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TECNA - Painel de Controle</title>
+
+    <link rel="stylesheet" href="/static/dashboard.css">
+</head>
+<body>
+
+<div class="header">
+
+    <div class="header-info">
+
+        <h1>TECNA API</h1>
+
+        <p class="subtitle">
+            Painel de Controle Inteligente
+        </p>
+
+        <div id="clock"></div>
+
+    </div>
+
+    <div class="header-gif">
+
+        <img
+            src="/static/img/tecna-gif.gif"
+            alt="TECNA"
+            class="tecna-gif"
+        >
+
+    </div>
+
+</div>
+    <div class="cards">
+
+        <div class="card">
+            <h3>Scripts</h3>
+
+            <span
+                class="counter"
+                data-target="{{ total_scripts }}"
+            >
+                0
+            </span>
+        </div>
+
+        <div class="card">
+            <h3>Execuções</h3>
+
+            <span
+                class="counter"
+                data-target="{{ total_logs }}"
+            >
+                0
+            </span>
+        </div>
+
+    </div>
+
+    <div class="logs-section">
+
+        <h2>Últimas Execuções</h2>
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuário</th>
+                    <th>Script</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log.id }}</td>
+                    <td>{{ log.usuario }}</td>
+                    <td>{{ log.script }}</td>
+                    <td>
+                        <span class="status">
+                            {{ log.status }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <div class="footer">
+        Criado por: Aline Quintal, Giovana Hissa e Nubya Gomes •  Ciência da Computação • 1º Semestre • FMU
+    </div>
+
+    <script src="/static/dashboard.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,329 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    min-height:100vh;
+
+    font-family:'Poppins',sans-serif;
+    color:#eaf2ff;
+
+    background:
+        radial-gradient(circle at 20% 20%, rgba(130,80,255,.10), transparent 40%),
+        radial-gradient(circle at 80% 30%, rgba(0,180,255,.08), transparent 40%),
+        radial-gradient(circle at 50% 80%, rgba(255,105,180,.06), transparent 40%),
+        linear-gradient(
+            135deg,
+            #080d17 0%,
+            #111827 50%,
+            #090d16 100%
+        );
+}
+
+/* =========================
+ESTRELAS
+========================= */
+
+body::before{
+    content:"";
+
+    position:fixed;
+    inset:0;
+
+    background-image:
+        radial-gradient(circle, white 1px, transparent 2px),
+        radial-gradient(circle, white 2px, transparent 3px);
+
+    background-size:
+        180px 180px,
+        280px 280px;
+
+    opacity:.15;
+
+    pointer-events:none;
+}
+
+.header{
+    width:90%;
+    max-width:1200px;
+
+    margin:0 auto;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding-top:40px;
+    padding-bottom:20px;
+}
+.header-info{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+}
+.header-gif{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.tecna-gif{
+    width:260px;
+    height:auto;
+
+    border-radius:20px;
+
+    filter:
+        drop-shadow(0 0 25px rgba(168,85,247,.35));
+
+    animation:floatTecna 4s ease-in-out infinite;
+}
+.header-content{
+    margin-top:15px;
+}
+
+.header h1{
+    font-size:3rem;
+    font-weight:700;
+    color:#ffffff;
+
+    margin-bottom:8px;
+}
+
+.subtitle{
+    color:#94a3b8;
+
+    font-size:1.1rem;
+
+    margin-bottom:12px;
+}
+
+#clock{
+    color:#38bdf8;
+
+    font-size:1rem;
+    font-weight:600;
+}
+
+/* =========================
+CARDS
+========================= */
+
+.cards{
+    display:flex;
+
+    justify-content:center;
+
+    gap:25px;
+
+    flex-wrap:wrap;
+
+    margin-top:30px;
+    margin-bottom:50px;
+}
+
+.card{
+    width:200px;
+
+    padding:20px;
+
+    text-align:center;
+
+    border-radius:18px;
+
+    background:rgba(255,255,255,.04);
+
+    backdrop-filter:blur(16px);
+
+    border:1px solid rgba(255,255,255,.08);
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.25);
+
+    transition:.3s;
+}
+
+.card:hover{
+    transform:translateY(-6px);
+
+    border-color:rgba(56,189,248,.4);
+}
+
+.card h3{
+    color:#e2e8f0;
+
+    font-size:1.1rem;
+
+    margin-bottom:15px;
+}
+
+.card span{
+    font-size:3.2rem;
+
+    font-weight:700;
+
+    color:#38bdf8;
+}
+
+/* =========================
+LOGS
+========================= */
+
+.logs-section{
+    width:95%;
+    max-width:1200px;
+
+    margin:0 auto 50px auto;
+}
+
+.logs-section h2{
+    text-align:center;
+
+    margin-bottom:20px;
+
+    color:#f8fafc;
+}
+
+table{
+    width:100%;
+
+    border-collapse:collapse;
+
+    background:rgba(255,255,255,.03);
+
+    backdrop-filter:blur(16px);
+
+    border-radius:16px;
+
+    overflow:hidden;
+
+    border:1px solid rgba(255,255,255,.06);
+}
+
+thead{
+    background:#1e293b;
+}
+
+th{
+    padding:18px;
+
+    color:white;
+
+    font-weight:600;
+}
+
+td{
+    padding:15px;
+
+    text-align:center;
+
+    color:#e2e8f0;
+}
+
+tbody tr{
+    transition:.3s;
+}
+
+tbody tr:hover{
+    background:rgba(56,189,248,.06);
+}
+
+.status{
+    background:#38bdf8;
+
+    color:#08111f;
+
+    padding:6px 12px;
+
+    border-radius:999px;
+
+    font-size:.75rem;
+
+    font-weight:700;
+}
+
+/* =========================
+FOOTER
+========================= */
+
+.footer{
+    text-align:center;
+
+    margin:30px 0;
+
+    color:#64748b;
+
+    font-size:.85rem;
+}
+
+/* =========================
+ANIMAÇÕES
+========================= */
+
+@keyframes floatTecna{
+
+    0%{
+        transform:translateY(0);
+    }
+
+    50%{
+        transform:translateY(-8px);
+    }
+
+    100%{
+        transform:translateY(0);
+    }
+
+}
+
+/* =========================
+RESPONSIVO
+========================= */
+
+@media(max-width:768px){
+
+    .header{
+        flex-direction:column-reverse;
+        text-align:center;
+        gap:20px;
+    }
+
+    .header-info{
+        align-items:center;
+    }
+
+    .tecna-gif{
+        width:180px;
+    }
+
+    .header h1{
+        font-size:2.2rem;
+    }
+
+    .card{
+        width:90%;
+    }
+
+    th,
+    td{
+        padding:10px;
+        font-size:.9rem;
+    }
+}
+@keyframes floatTecna{
+
+    0%{
+        transform: scaleX(-1) translateY(0);
+    }
+
+    50%{
+        transform: scaleX(-1) translateY(-8px);
+    }
+
+    100%{
+        transform: scaleX(-1) translateY(0);
+    }
+
+}
