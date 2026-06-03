@@ -21,6 +21,12 @@ def update_token(
     data: TokenUpdate,
     user=Depends(verify_token)
 ):
+    
+    if user["id"] != 1:
+        raise HTTPException(
+            status_code=403,
+            detail="Apenas administradores podem alterar tokens"
+        )
 
     with engine.begin() as conn:
 

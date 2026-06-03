@@ -34,31 +34,59 @@
     </div>
 
 </div>
-    <div class="cards">
+<div class="cards">
 
-        <div class="card">
-            <h3>Scripts</h3>
+    <div class="card">
+        <h3>Scripts</h3>
 
-            <span
-                class="counter"
-                data-target="{{ total_scripts }}"
-            >
-                0
-            </span>
-        </div>
+        <span
+            class="counter"
+            data-target="{{ total_scripts }}"
+        >
+            0
+        </span>
 
-        <div class="card">
-            <h3>Execuções</h3>
-
-            <span
-                class="counter"
-                data-target="{{ total_logs }}"
-            >
-                0
-            </span>
-        </div>
-
+        <p class="card-info">
+            Scripts cadastrados
+        </p>
     </div>
+
+    <div class="card">
+        <h3>Execuções</h3>
+
+        <span
+            class="counter"
+            data-target="{{ total_logs }}"
+        >
+            0
+        </span>
+
+        <p class="card-info">
+            Auditoria em tempo real
+        </p>
+    </div>
+
+    <div class="card">
+        <h3>Segurança</h3>
+
+        <span>🔒</span>
+
+        <p class="card-info">
+            Token ativo
+        </p>
+    </div>
+
+    <div class="card">
+        <h3>Docker</h3>
+
+        <span>🐳</span>
+
+        <p class="card-info">
+            Ambiente isolado
+        </p>
+    </div>
+
+</div>
 
     <div class="logs-section">
 
@@ -96,9 +124,20 @@
 
     </div>
 
-    <div class="footer">
-        Criado por: Aline Quintal, Giovana Hissa e Nubya Gomes •  Ciência da Computação • 1º Semestre • FMU
-    </div>
+<div class="footer">
+
+    <h3>TECNA</h3>
+
+    <p>
+        Automação Inteligente de Infraestrutura
+    </p>
+
+    <small>
+        Desenvolvido por:
+        Aline Quintal • Giovana Hissa • Nubya Gomes
+    </small>
+
+</div>
 
     <script src="/static/dashboard.js"></script>
 

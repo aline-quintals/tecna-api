@@ -12,6 +12,8 @@ from app.logs_api import router as logs_router
 from app.usuarios_api import router as usuarios_router
 from app.dashboard import router as dashboard_router
 from fastapi.staticfiles import StaticFiles
+from app.notifier import send_discord_alert
+
 
 # =========================
 # APP
@@ -173,7 +175,12 @@ def execute_script(
         stdout=stdout,
         stderr=stderr
     )
-
+    send_discord_alert(
+        f"🚀 TECNA ALERTA\n\n"
+        f"Usuário: {usuario_nome}\n"
+        f"Script ID: {script_id}\n"
+        f"Status: {status}"
+    )
     # =========================
     # 5. RESPONSE
     # =========================
